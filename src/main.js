@@ -1,0 +1,49 @@
+import * as request from "/js/pixabay-api.js";
+import * as render from "/js/render-functions.js";
+// Описаний у документації
+import iziToast from "izitoast";
+// Додатковий імпорт стилів
+import "izitoast/dist/css/iziToast.min.css";
+
+
+const formSearh = document.querySelector(".search-form");
+const inputSearch = document.querySelector(".search-input");
+
+formSearh.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const gallery = document.querySelector('.gallery');
+    gallery.innerHTML = "";
+
+    const loading = document.createElement("p");
+    loading.classList.add("loading");
+    loading.textContent = "Loading images, please wait..."
+    formSearh.append(loading);
+
+
+
+    const searchWorlds = formSearh.elements.search.value.trim();
+    if (searchWorlds == "") {
+        iziToast.error({
+            title: 'Error',
+            message: "Search field can't be empty"
+        });
+    }
+    else {
+        request.searchImg(searchWorlds, (hits) => {
+            const loading = document.querySelector(".loading");
+            loading.remove();
+            if (hits.length === 0) {
+                iziToast.error({
+                    title: 'Error',
+                    message: "Sorry, there are no images matching your search query. Please try again!"
+                });
+            }
+            else {
+                render.renderingImgs(gallery, hits)
+            }
+        });
+        inputSearch.value = '';
+    }
+});
+
+
